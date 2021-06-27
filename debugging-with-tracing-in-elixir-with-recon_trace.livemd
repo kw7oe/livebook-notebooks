@@ -1,4 +1,4 @@
-# Debugging with Tracing in Elixir with `recon_trace`
+# Debugging with Tracing in Elixir with recon_trace
 
 ## Introduction
 
@@ -133,7 +133,7 @@ the traces for the first function call and not the second.
 
 ## Writing Match Spec
 
-Writing the match spec seems complicated right? No worry, 
+Writing the match spec seems complicated right? No worry,
 we can utilize `:dbg.fun2ms` to help us out.
 
 ```elixir
@@ -169,7 +169,7 @@ Enum.map([1, 2, 3, 4, 5], fn x -> x + 2 end)
 Enum.map([1, 2, 3, 4, 5, 6, 7, 8], fn x -> x + 2 end)
 ```
 
-You'll see that there is no tracing for first function call, as it only have 4 elements and 
+You'll see that there is no tracing for first function call, as it only have 4 elements and
 does not fulfil our match spec.
 
 ## Wrap Up
@@ -187,3 +187,7 @@ if you are interested into this topic particularly:
 
 * ElixirConf 2020: [Debugging Live Systems on the BEAM talk](https://www.youtube.com/watch?v=sR9h3DZAA74) by Jeffery Utter
 * Book: [Erlang in Anger](https://www.erlang-in-anger.com/)
+
+---
+
+*This Livebook content is also available as a blog post on [my website](https://kaiwern.com/posts/2021/06/27/debugging-with-tracing-in-elixir-with-recon_trace/)*.
