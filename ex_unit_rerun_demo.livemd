@@ -1,0 +1,33 @@
+# ExUnit Rerun Demo
+
+## Test Case
+
+```elixir
+ExUnit.start()
+
+defmodule SampleTest do
+  use ExUnit.Case
+
+  test "it pass" do
+    assert MyMath.add(2, 2) == 4
+  end
+
+  test "it fails" do
+    refute MyMath.add(2, 2) == 5
+  end
+end
+
+ExUnit.run()
+```
+
+## Implementation
+
+```elixir
+defmodule MyMath do
+  def add(a, b) do
+    a + b
+  end
+end
+
+ExUnit.run()
+```
