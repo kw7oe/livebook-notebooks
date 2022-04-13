@@ -31,3 +31,33 @@ end
 
 ExUnit.run()
 ```
+
+## Hack
+
+```elixir
+test_content =
+  quote do
+    use ExUnit.Case
+
+    test "it pass" do
+      assert MyMath.add(2, 2) == 4
+    end
+
+    test "it fails" do
+      refute MyMath.add(2, 2) == 5
+    end
+  end
+
+Module.create(SampleTest, test_content, Macro.Env.location(__ENV__))
+ExUnit.run()
+
+defmodule MyMath do
+  def add(a, b) do
+    # wrong impl
+    a - b
+  end
+end
+
+Module.create(SampleTest, test_content, Macro.Env.location(__ENV__))
+ExUnit.run()
+```
