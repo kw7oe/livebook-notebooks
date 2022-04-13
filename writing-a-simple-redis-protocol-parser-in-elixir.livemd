@@ -1,5 +1,10 @@
 # Writing a simple Redis Protocol parser in Elixir
 
+```elixir
+# Before we get started, let's setup our Livebook with the dependencies we need:
+Mix.install([:redix, :kino])
+```
+
 ## Introduction
 
 Today, we are going to write a parser that parse
@@ -19,22 +24,25 @@ parse request/response by Redis client/server**. Here's how this post is structu
 Before getting into the implementation, let's learn about the
 Redis Protocol Specification first.
 
+<!-- livebook:{"break_markdown":true} -->
+
 ---
 
 _This post is inspired by [Rust Tokio Mini-Redis Tutorial](https://tokio.rs/tokio/tutorial/setup),
 where it walks through the reader to implement a mini Redis with
-[`tokio`](https://tokio.rs/). If things go well, this would also be a similar
-series._
+[`tokio`](https://tokio.rs/). This post is part of
+the series of implementing mini Redis in Elixir:_
+
+* Part 1: Writing a simple Redis Protocol parser in Elixir
+* [Part 2: Writing a mini Redis server in Elixir](https://kaiwern.com/posts/2022/04/04/writing-a-mini-redis-server-in-elixir/)
+* [Part 3: Benchmarking and writing a concurrent mini Redis in Elixir](https://kaiwern.com/posts/2022/04/05/benchmarking-and-writing-a-concurrent-mini-redis-in-elixir/)
+
+_Part 2 and 3 do not include a Livebook version yet._
+
+_(Part 2 onwards require repeatly restarting processes and interacting with external programs as we work towards the end._ 
+_I'm still figuring out how to best port it into Livebook to ensure you have a great experience interacting with it.)_
 
 ---
-
-## Setting up dependencies
-
-Before we get started, let's setup our Livebook with the dependencies we need:
-
-```elixir
-Mix.install([:redix, :kino])
-```
 
 ## Redis Protocol Specification
 
@@ -389,7 +397,7 @@ Next up, we would be integrating this parser into our TCP server so that we can 
 Redis server. With that, do you think our current parser implementation would
 still work?
 
-Stay tuned.
+Let's find it out on the next post: [Writing a mini Redis server in Elixir](https://kaiwern.com/posts/2022/04/04/writing-a-mini-redis-server-in-elixir/)
 
 ---
 
