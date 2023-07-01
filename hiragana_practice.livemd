@@ -1,0 +1,205 @@
+<!-- livebook:{"app_settings":{"access_type":"public","slug":"hiragana"}} -->
+
+# Hiragana Practice
+
+```elixir
+Mix.install([:kino])
+```
+
+## Question
+
+```elixir
+defmodule State do
+  use GenServer
+
+  def start_link(state) do
+    GenServer.start_link(__MODULE__, state, name: __MODULE__)
+  end
+
+  def get_question() do
+    GenServer.call(__MODULE__, :question)
+  end
+
+  def get_question_set() do
+    GenServer.call(__MODULE__, :question_set)
+  end
+
+  def get_stat() do
+    GenServer.call(__MODULE__, :stat)
+  end
+
+  def set_question(question) do
+    GenServer.call(__MODULE__, {:set_question, question})
+  end
+
+  def check_answer(answer) do
+    GenServer.call(__MODULE__, {:check_answer, answer})
+  end
+
+  @impl true
+  def init(%{question_set: set} = state) do
+    state =
+      state
+      |> Map.put(:question, set |> Enum.random() |> elem(0))
+      |> Map.put(:stat, %{correct: 0, wrong: 0, attempt: 0})
+
+    {:ok, state}
+  end
+
+  @impl true
+  def handle_call(:question, _from, state) do
+    {:reply, Map.get(state, :question), state}
+  end
+
+  @impl true
+  def handle_call(:stat, _from, state) do
+    {:reply, Map.get(state, :stat), state}
+  end
+
+  @impl true
+  def handle_call(:question_set, _from, state) do
+    {:reply, Map.get(state, :question_set), state}
+  end
+
+  @impl true
+  def handle_call({:set_question, question}, _from, state) do
+    {:reply, :ok, Map.put(state, :question, question)}
+  end
+
+  @impl true
+  def handle_call(
+        {:check_answer, answer},
+        _from,
+        %{question: question, question_set: question_set} = state
+      ) do
+    expected_answer = Map.get(question_set, question)
+    result = answer == expected_answer
+
+    # If the answer is correct, let's generate a new 
+    # question and remove the old questions from our 
+    # question_set
+    state =
+      if result do
+        question_set = Map.delete(question_set, question)
+
+        new_question =
+          if Enum.empty?(question_set) do
+            nil
+          else
+            question_set |> Enum.random() |> elem(0)
+          end
+
+        state = %{state | question: new_question, question_set: question_set}
+        {_, state} = get_and_update_in(state, [:stat, :attempt], &{&1, &1 + 1})
+        {_, state} = get_and_update_in(state, [:stat, :correct], &{&1, &1 + 1})
+        state
+      else
+        {_, state} = get_and_update_in(state, [:stat, :attempt], &{&1, &1 + 1})
+        {_, state} = get_and_update_in(state, [:stat, :wrong], &{&1, &1 + 1})
+        state
+      end
+
+    {:reply, result, state}
+  end
+end
+
+if not is_nil(Process.whereis(State)) do
+  GenServer.stop(State, :normal)
+end
+
+{:ok, pid} =
+  State.start_link(%{
+    question_set: %{
+      "あ" => "a",
+      "い" => "i",
+      "う" => "u",
+      "え" => "e",
+      "お" => "o",
+      "か" => "ka",
+      "き" => "ki",
+      "く" => "ku",
+      "け" => "ke",
+      "こ" => "ko"
+    }
+  })
+```
+
+```elixir
+question_frame = Kino.Frame.new()
+```
+
+```elixir
+render_new_question = fn frame ->
+  random_hiragana = State.get_question()
+
+  content =
+    if not is_nil(random_hiragana) do
+      "# #{random_hiragana}"
+    else
+      stat = State.get_stat()
+
+      """
+      # Congratulations, you have answer all the questions!
+
+      | | Count |
+      | --- | --- |
+      | Correct | #{stat.correct} |
+      | Wrong | #{stat.wrong} |
+      | Attempt | #{stat.attempt} | 
+      """
+    end
+
+  content = Kino.Markdown.new(content)
+  Kino.Frame.render(frame, content)
+end
+
+render_new_question.(question_frame)
+```
+
+## Answers
+
+```elixir
+input = Kino.Input.text("Answer")
+form = Kino.Control.form([answer: input], submit: "Submit", reset_on_submit: true)
+```
+
+```elixir
+frame = Kino.Frame.new()
+```
+
+```elixir
+Kino.listen(form, fn %{data: %{answer: answer}, origin: origin} ->
+  content =
+    if State.check_answer(answer) do
+      render_new_question.(question_frame)
+      "You're correct!"
+    else
+      "Oops, you are wrong. Perhaps, try again."
+    end
+
+  Kino.Frame.render(frame, content |> Kino.Text.new(), to: origin)
+end)
+```
+
+```elixir
+button = Kino.Control.button("Show me the references!")
+```
+
+```elixir
+reference_frame = Kino.Frame.new()
+```
+
+```elixir
+to_table = fn map ->
+  Enum.map(map, fn {k, v} ->
+    %{Hiragana: k, Answer: v}
+  end)
+end
+
+hiragana_romanji = State.get_question_set()
+
+Kino.listen(button, fn %{origin: origin} ->
+  table = Kino.DataTable.new(to_table.(hiragana_romanji), name: "Reference")
+  Kino.Frame.render(reference_frame, table, to: origin)
+end)
+```
