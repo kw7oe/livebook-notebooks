@@ -1,0 +1,25 @@
+<!-- livebook:{"app_settings":{"access_type":"public","output_type":"rich","slug":"time"}} -->
+
+# Convert Unix Timestamp to Date Time
+
+```elixir
+Mix.install([:kino])
+```
+
+## Untitled
+
+```elixir
+input = Kino.Input.number("unix_timestamp", default: DateTime.utc_now() |> DateTime.to_unix())
+form = Kino.Control.form([unix_timestamp: input], report_changes: true)
+```
+
+```elixir
+frame = Kino.Frame.new()
+```
+
+```elixir
+Kino.listen(form, fn %{data: %{unix_timestamp: v}, origin: origin} ->
+  content = Kino.Text.new(DateTime.from_unix!(v) |> DateTime.to_string())
+  Kino.Frame.render(frame, content, to: origin)
+end)
+```
